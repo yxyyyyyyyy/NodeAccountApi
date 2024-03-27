@@ -5,8 +5,33 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
 var indexRouter = require('./routes/web/index');
+var accountRouter = require('./routes/api/account')
+var loginRouter = require('./routes/web/user');
 
+//导入express0sessiomn
+const session = require('express-session');
+const MongoStore = require('connect-mongo')
+
+const config = require('./config/config')
 var app = express();
+
+app.use(session({
+  name :'sid',
+  secret: 'Echooooo',
+  saveUninitialized : false,
+  resave : true,
+  store : MongoStore.create({
+    mongoUrl:`mongodb://${config.DBHOST}:${config.DBPORT}/${config.DBNAME}`
+  }),
+  cookie:{
+    httpOnly : true,
+    maxAge : 1000*60*60*24*7
+  }
+}))
+
+
+
+
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -19,10 +44,14 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
+app.use('/api', accountRouter);
+app.use('/', loginRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-  next(createError(404));
+  // next(createError(404));
+  // 响应404
+  res.render('404')
 });
 
 // error handler

@@ -7,17 +7,18 @@ var logger = require('morgan');
 var indexRouter = require('./routes/web/index');
 var accountRouter = require('./routes/api/account')
 var loginRouter = require('./routes/web/user');
-
+var userRouter = require('./routes/api/user');
 //导入express0sessiomn
 const session = require('express-session');
 const MongoStore = require('connect-mongo')
+
 
 const config = require('./config/config')
 var app = express();
 
 app.use(session({
   name :'sid',
-  secret: 'Echooooo',
+  secret: config.secrext,
   saveUninitialized : false,
   resave : true,
   store : MongoStore.create({
@@ -46,6 +47,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/api', accountRouter);
 app.use('/', loginRouter);
+app.use('/api', userRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

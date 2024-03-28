@@ -33,11 +33,11 @@ router.post('/login' , (req , res) =>{
     .then(data => {
         if(!data){
             res.send("账号或者密码错误")
-        }else{
-            res.render("success" , {msg :'登录成功' , url : '/api/accountList'})
-            req.session.username = data.username
-            req.session._id = data._id
         }
+        req.session.username = data.username
+        req.session._id = data._id
+        res.render("success" , {msg :'登录成功' , url : '/api/accountList'})
+        
     })
     .catch(err => {
         res.status(500).send("查找失败")

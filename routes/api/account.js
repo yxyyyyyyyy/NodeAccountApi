@@ -7,16 +7,21 @@ const moment = require("moment")
 
 const AccountModel = require("../../Model/Account")
 const loginmiddle = require("../../middle/Login")
-
+const tokenmidle = require("../../middle/check")
+let UserModel = require('../../Model/reg')
+const md5 = require("md5");
+const { token } = require('morgan');
+const jwt = require('jsonwebtoken')
 // 声明中间件检测登录
 let checkLogin = loginmiddle
-
-router.get('/', (req, res) => {
-    res.redirect('/login'); // 重定向到登录页面
-});
+let checkToken = tokenmidle
+// router.get('/', (req, res) => {
+//     res.redirect('/login'); // 重定向到登录页面
+// });
 
 // 获取全部账单
-router.get('/accountList', checkLogin, function (req, res, next) {
+router.get('/accountList' ,checkToken ,  function (req, res, next) {
+    const user = req.user
     AccountModel.find().sort({ time: -1 }).exec()
         .then(data => {
             res.json({
@@ -36,7 +41,7 @@ router.get('/accountList', checkLogin, function (req, res, next) {
 
 // 在接口规则中 ,  不会给客户返回html  只会返回json
 
-router.post('/add', checkLogin, function (req, res, next) {
+router.post('/add', checkToken, function (req, res, next) {
     AccountModel.create({
         ...req.body,
         time: moment(req.body.time).toDate()
@@ -57,7 +62,7 @@ router.post('/add', checkLogin, function (req, res, next) {
         });
 });
 
-router.get('/delete/:id', checkLogin, (req, res) => {
+router.get('/delete/:id', checkToken, (req, res) => {
     let id = req.params.id
     AccountModel.deleteOne({
         _id: id
@@ -80,7 +85,7 @@ router.get('/delete/:id', checkLogin, (req, res) => {
 })
 
 // 获取单个账单
-router.get('/account/:id', checkLogin, (req, res) => {
+router.get('/account/:id', checkToken, (req, res) => {
     let { id } = req.params;
     AccountModel.findById(id)
         .then(data => {
@@ -108,7 +113,7 @@ router.get('/account/:id', checkLogin, (req, res) => {
 });
 
 
-router.patch('/account/:id', checkLogin, (req, res) => {
+router.patch('/account/:id', checkToken, (req, res) => {
     let { id } = req.params;
     AccountModel.updateOne({ _id: id }, req.body)
         .then(data => {
@@ -126,6 +131,5 @@ router.patch('/account/:id', checkLogin, (req, res) => {
             });
         });
 });
-
 
 module.exports = router;
